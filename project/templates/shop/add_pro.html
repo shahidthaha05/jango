@@ -6,6 +6,18 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Add product</h1>
+    <h2>Add product</h2>
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="text" name="pro_id" id="" placeholder="product id">
+        <input type="text" name="name" id="" placeholder="Name">
+        <input type="number" name="price" id="" placeholder="price">
+        <input type="number" name="offer_price" id="" placeholder="offer_price">
+        <input type="text" name="dis" id="" placeholder="discription">
+        <input type="file" name="img" id="">
+        <input type="submit" value="Add">
+
+        
+    </form>
 </body>
 </html>
