@@ -69,4 +69,6 @@ def register(req):
             return redirect(register)
     else:
         return render(req,'user/register.html')
-        
+
+
+# print(hyy)
