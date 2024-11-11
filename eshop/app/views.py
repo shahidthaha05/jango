@@ -11,14 +11,21 @@ from django.contrib import messages
 def shp_login(req):
     if 'eshop' in req.session:
         return redirect(shp_home)
+    if 'user' in req.session:
+        return redirect(user_home)
     if req.method=='POST':
         uname=req.POST['uname']
         password=req.POST['pswd']
         data=authenticate(username=uname,password=password)
         if data:
-            login(req,data)
-            req.session['eshop']=uname   #create session
-            return redirect(shp_home)
+            if data.is_superuser:
+                login(req,data)
+                req.session['eshop']=uname   #create session
+                return redirect(shp_home)
+            else:
+                login(req,data)
+                req.session['user']=uname   #create session
+                return redirect(user_home)
         else:
             messages.warning(req,'Invalid username or password.')
             return redirect(shp_login)
@@ -58,7 +65,6 @@ def add_prod(req):
 def edit_prod(req,pid):
     if 'eshop' in req.session:
         if req.method=='POST':
-
             prd_id=req.POST['prd_id']
             prd_name=req.POST['prd_name']
             prd_price=req.POST['prd_price']
@@ -66,7 +72,10 @@ def edit_prod(req,pid):
             prd_dis=req.POST['prd_dis']
             img=req.FILES.get('img')
             if img:
-                Product.objects.filter(pk=pid).update(pro_id=prd_id,name=prd_name,price=prd_price,ofr_price=ofr_price,img=img,dis=prd_dis)
+                Product.objects.filter(pk=pid).update(pro_id=prd_id,name=prd_name,price=prd_price,ofr_price=ofr_price,dis=prd_dis)
+                data=Product.objects.get(pk=pid)
+                data.img=img
+                data.save()
             else:
                 Product.objects.filter(pk=pid).update(pro_id=prd_id,name=prd_name,price=prd_price,ofr_price=ofr_price,dis=prd_dis)
             return redirect(shp_home)
@@ -82,6 +91,7 @@ def delete_prod(req,pid):
     os.remove('media/'+og_path)
     data.delete()
     return redirect(shp_home)
+
 def register(req):
     if req.method=='POST':
         name=req.POST['name']
@@ -96,3 +106,32 @@ def register(req):
             return redirect(register)
     else:
         return render(req,'user/register.html')
+
+def user_home(req):
+    if 'user' in req.session:
+        data=Product.objects.all()
+        return render(req,'user/home.html',{'data':data})
+    else:
+        return redirect(shp_login)
+    
+def view_pro(req,pid):
+    data=Product.objects.get(pk=pid)
+    return render(req,'user/view_pro.html',{'data':data})
+
+def add_to_cart(req,pid):
+    prod=Product.objects.get(pk=pid)
+    user=User.objects.get(username=req.session['user'])
+    data=Cart.objects.create(user=user,product=prod)
+    data.save()
+    return redirect(view_cart)
+
+def view_cart(req):
+    user=User.objects.get(username=req.session['user'])
+    cart_det=Cart.objects.filter(user=user)
+    return render(req,'user/view_cart.html',{'cart_det':cart_det})
+
+
+def delete_cart(req,id):
+    cart=Cart.objects.get(pk=id)
+    cart.delete()
+    return redirect(view_cart)
