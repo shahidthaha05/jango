@@ -40,6 +40,8 @@
                 <s><h6>₹{{i.product.price}}</h6></s>
                 <h3>₹{{i.product.ofr_price}}</h3>
                 <p>{{i.product.dis}}</p>
+                <a href="delete_cart/{{i.pk}}" class="btn btn-dark">Remove</a>
+                <a href="user_buy/{{i.pk}}" class="btn btn-dark">buy</a>
 
             </div>
             {% endfor %}
