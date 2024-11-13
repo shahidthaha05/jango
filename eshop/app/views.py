@@ -8,6 +8,8 @@ from django.contrib import messages
 # Create your views here.
 
 
+#-----------------------------admin--------------->
+
 def shp_login(req):
     if 'eshop' in req.session:
         return redirect(shp_home)
@@ -92,6 +94,17 @@ def delete_prod(req,pid):
     data.delete()
     return redirect(shp_home)
 
+def bookings(req):
+    buy=Buy.objects.all()[::-1]
+    return render(req,'shop/bookings.html',{'buy':buy})
+
+
+
+
+
+
+#--------------------user---------------------#
+
 def register(req):
     if req.method=='POST':
         name=req.POST['name']
@@ -154,3 +167,9 @@ def user_buy1(req,pid):
     buy=Buy.objects.create(user=user,product=product,price=price)
     buy.save()
     return redirect(user_home)
+
+
+def user_bookings(req):
+    user=User.objects.get(username=req.session['user'])
+    buy=Buy.objects.filter(user=user)[::-1]
+    return render(req,'user/bookings.html',{'buy':buy})
